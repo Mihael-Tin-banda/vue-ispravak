@@ -33,8 +33,8 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3">
       <!-- PACHINKO -->
 
-      <a
-        href="docs/pachinko/index.html"
+      <router-link
+        to="/pachinko"
         class="group relative block h-64 sm:h-80"
       >
         <span
@@ -68,7 +68,7 @@
             </p>
           </div>
         </div>
-      </a>
+      </router-link>
 
       <!-- MINES -->
 

@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "paths": {
       "@/*": [
-        "src/*"
+        "src/*",
+        "src/components/*" // Add the correct path to the components folder
       ]
     },
     "lib": [
