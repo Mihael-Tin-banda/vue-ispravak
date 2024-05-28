@@ -1,0 +1,198 @@
+<template>
+  <div
+    class="w-full h-screen flex flex-col justify-between overflow-auto bg-color cutive-mono-regular"
+  >
+
+  <h1 class="text-5xl relative text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+    "STEPS"
+  </h1>
+  
+    <!-- NAV -->
+    <div class="flex justify-between items-center relative">
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">
+      </p>
+
+      <div class="flex">
+        <button
+          id="Authenticate"
+          class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2"
+        >
+          Authenticate
+        </button>
+        <button
+          id="Get_KK"
+          class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2"
+        >
+          Get KorakKoins
+        </button>
+      </div>
+    </div>
+
+    <!-- SECTION -->
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3">
+      <!-- PACHINKO -->
+
+      <a
+        href="docs/pachinko/index.html"
+        class="group relative block h-64 sm:h-80"
+      >
+        <span
+          class="absolute inset-0 border-2 border-dashed border-color"
+        ></span>
+
+        <div
+          class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2"
+        >
+          <div
+            class="p-4 !pt-0 transition-opacity group-hover:absolute group-hover:opacity-0 sm:p-6 lg:p-8"
+          >
+            <img src="../assets/ikone/pachinko.svg" class="filter-white svg-size" />
+
+            <h2 class="mt-4 text-xl sm:text-2xl">Pachinko</h2>
+          </div>
+
+          <div
+            class="absolute p-4 opacity-0 transition-opacity group-hover:relative group-hover:opacity-100 sm:p-6 lg:p-8"
+          >
+            <h3 class="mt-4 text-xl sm:text-2xl">Pachinko</h3>
+
+            <p class="mt-4 text-sm sm:text-base">
+              Suck the balls into the hole and win the game.
+            </p>
+
+            <p
+              class="mt-8 font-bold border-color border-2 p-2 border-dashed w-fit hover:bg-red-500"
+            >
+              Press
+            </p>
+          </div>
+        </div>
+      </a>
+
+      <!-- MINES -->
+
+      <a href="docs/mines/index.html" class="group relative block h-64 sm:h-80">
+        <span
+          class="absolute inset-0 border-2 border-dashed border-color"
+        ></span>
+
+        <div
+          class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2"
+        >
+          <div
+            class="p-4 !pt-0 transition-opacity group-hover:absolute group-hover:opacity-0 sm:p-6 lg:p-8"
+          >
+            <img src="../assets/ikone/bomb.svg" class="filter-white" />
+
+            <h2 class="mt-4 text-xl sm:text-2xl">Mines</h2>
+          </div>
+
+          <div
+            class="absolute p-4 opacity-0 transition-opacity group-hover:relative group-hover:opacity-100 sm:p-6 lg:p-8"
+          >
+            <h3 class="mt-4 text-xl sm:text-2xl">Mines</h3>
+
+            <p class="mt-4 text-sm sm:text-base">
+              Mines are everywhere. You have to find them and avoid them.
+            </p>
+
+            <p
+              class="mt-8 font-bold border-color border-2 p-2 border-dashed w-fit hover:bg-red-500"
+            >
+              Press
+            </p>
+          </div>
+        </div>
+      </a>
+
+      <!-- BLACK JACK -->
+      <!-- <a
+        href="docs/blackjack/index.html"
+        class="group relative block h-64 sm:h-80"
+      >
+        <span
+          class="absolute inset-0 border-2 border-dashed border-color"
+        ></span>
+
+        <div
+          class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2"
+        >
+          <div
+            class="p-4 !pt-0 transition-opacity group-hover:absolute group-hover:opacity-0 sm:p-6 lg:p-8"
+          >
+            <img src="../assets/ikone/playing-cards.svg" class="filter-white svg-size" />
+
+            <h2 class="mt-4 text-xl sm:text-2xl">Black Jack</h2>
+          </div>
+
+          <div
+            class="absolute p-4 opacity-0 transition-opacity group-hover:relative group-hover:opacity-100 sm:p-6 lg:p-8"
+          >
+            <h3 class="mt-4 text-xl sm:text-2xl">Black Jack</h3>
+
+            <p class="mt-4 text-sm sm:text-base">
+              Jack Black is a great actor and a great musician. He is also a
+              great game.
+            </p>
+
+            <p
+              class="mt-8 font-bold border-color border-2 p-2 border-dashed w-fit hover:bg-red-500"
+            >
+              Press
+            </p>
+          </div>
+        </div>
+      </a> -->
+
+      <!-- LUCKY NUMBERS -->
+
+      <a
+        href="docs/lucky numbers/index.html"
+        class="group relative block h-64 sm:h-80"
+      >
+        <span
+          class="absolute inset-0 border-2 border-dashed border-color"
+        ></span>
+
+        <div
+          class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2"
+        >
+          <div
+          class="p-4 !pt-0 transition-opacity group-hover:absolute group-hover:opacity-0 sm:p-6 lg:p-8"
+          >
+          <img src="../assets/ikone/clover-solid.svg" class="filter-white svg-size" />
+
+            <h2 class="mt-4 text-xl sm:text-2xl">Lucky Numbers</h2>
+          </div>
+
+          <div
+            class="absolute p-4 opacity-0 transition-opacity group-hover:relative group-hover:opacity-100 sm:p-6 lg:p-8"
+          >
+            <h3 class="mt-4 text-xl sm:text-2xl">Lucky Numbers</h3>
+
+            <p class="mt-4 text-sm sm:text-base">
+              Lucky Numbers are a game of luck
+            </p>
+
+            <p
+              class="mt-8 font-bold border-color border-2 p-2 border-dashed w-fit hover:bg-red-500"
+            >
+              Press
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomePage',
+}
+</script>
+
+<style scoped>
+
+</style>
