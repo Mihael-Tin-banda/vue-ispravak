@@ -1,16 +1,27 @@
 <template>
-  <HomePage />
+  <router-view />
 </template>
 
 <script>
-import HomePage from './components/HomePage.vue'
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
   name: 'App',
-  components: {
-    HomePage
-  }
-}
+  setup() {
+    const store = useStore();
+
+    const coins = computed(() => store.state.coins);
+    const updateUserCoins = (newCoins) => {
+      store.commit('updateCoins', newCoins);
+    };
+
+    return {
+      coins,
+      updateUserCoins,
+    };
+  },
+};
 </script>
 
 <style>

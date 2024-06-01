@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-screen flex flex-col justify-between overflow-auto bg-color cutive-mono-regular"
+    class="w-full h-screen flex flex-col justify-between overflow-auto cutive-mono-regular"
   >
 
   <h1 class="text-5xl relative text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
@@ -9,7 +9,7 @@
   
     <!-- NAV -->
     <div class="flex justify-between items-center relative">
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }}
       </p>
 
       <div class="flex">
@@ -188,9 +188,20 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+
 export default {
   name: 'HomePage',
-}
+  setup() {
+    const store = useStore();
+    const coins = computed(() => store.state.coins);
+
+    return {
+      coins,
+    };
+  },
+};
 </script>
 
 <style scoped>

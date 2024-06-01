@@ -6,7 +6,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomePage // use your home page component here
+    component: HomePage
   },
   {
     path: '/pachinko',
