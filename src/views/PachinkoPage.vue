@@ -5,7 +5,7 @@
       <div class="flex flex-col md:flex-row md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
         <label for="ballCost" class="border-color border-2 p-2 border-dashed">Ulog po loptici:</label>
         <input type="number" v-model.number="ballCost" id="ballCost" value="1" step="0.1" min="0.1" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
-        <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
+        <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" @mouseleave="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
       </div>
       <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }}</p>
     </div>
@@ -37,7 +37,7 @@ export default {
       const gameContent = document.getElementById('gameContent');
 
       engine = Matter.Engine.create({
-        gravity: { x: 0, y: 0.2 },
+        gravity: { x: 0, y: 1 },
       });
 
       render = Matter.Render.create({
@@ -55,14 +55,14 @@ export default {
       Matter.Runner.run(runner, engine);
 
       const wallOptions = { isStatic: true,
-                            restitution: 1.2,
+                            restitution: 0.8,
                             render: { fillStyle: '#fff' }
                           };
 
-      const wallTop = Matter.Bodies.rectangle(render.canvas.width / 2, 0, render.canvas.width, 1, wallOptions);
-      const wallBottom = Matter.Bodies.rectangle(render.canvas.width / 2, render.canvas.height, render.canvas.width, 1, wallOptions);
-      const wallLeft = Matter.Bodies.rectangle(0, render.canvas.height / 2, 1, render.canvas.height, wallOptions);
-      const wallRight = Matter.Bodies.rectangle(render.canvas.width, render.canvas.height / 2, 1, render.canvas.height, wallOptions);
+      const wallTop = Matter.Bodies.rectangle(render.canvas.width / 2, 0, render.canvas.width, 5, wallOptions);
+      const wallBottom = Matter.Bodies.rectangle(render.canvas.width / 2, render.canvas.height, render.canvas.width, 5, wallOptions);
+      const wallLeft = Matter.Bodies.rectangle(0, render.canvas.height / 2, 5, render.canvas.height, wallOptions);
+      const wallRight = Matter.Bodies.rectangle(render.canvas.width, render.canvas.height / 2, 5, render.canvas.height, wallOptions);
 
       Matter.World.add(engine.world, [wallTop, wallBottom, wallLeft, wallRight]);
 
@@ -81,7 +81,7 @@ export default {
 
       const pinRadius = 10;
       const spacing = 100;
-      const rows = 8;
+      const rows = 10;
       const startY = launcher.value.position.y + launcher.value.bounds.max.y + spacing * 0.2;
 
       for (let i = 0; i < rows; i++) {
@@ -203,6 +203,23 @@ export default {
       });
 
       Matter.Render.run(render);
+
+      Matter.Events.on(render, 'afterRender', function() {
+  render.context.font = '1rem Cutive Mono';
+  render.context.fillStyle = 'white';
+  render.context.textAlign = 'center';
+  render.context.textBaseline = 'middle';
+  sections.forEach(section => {
+    if(section.coins !== undefined) {
+    render.context.fillText(
+      `${section.coins}`,
+      section.position.x,
+      section.position.y
+    );
+    }
+  });
+});
+
       updateUserCoins();
     };
 
@@ -242,7 +259,7 @@ export default {
     const onLaunchMouseDown = () => {
       const numBalls = ballCost.value;
       if (numBalls < 0) return;
-      launchInterval = setInterval(launchBall, 115);
+      launchInterval = setInterval(launchBall, 300);
     };
 
     const onLaunchMouseUp = () => {
