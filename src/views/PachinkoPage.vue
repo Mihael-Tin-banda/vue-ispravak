@@ -44,8 +44,8 @@ export default {
         element: gameContent,
         engine: engine,
         options: {
-          width: Math.min(window.innerWidth, 800),
-          height: Math.min(window.innerHeight, 600),
+          width: 800,
+          height: 600,
           wireframes: false,
           background: '#18181d',
         },
@@ -80,38 +80,37 @@ export default {
       Matter.World.add(engine.world, launcher.value);
 
       const pinRadius = 10;
-      const spacing = 100;
-      const rows = 10;
+      const spacing = 42;
+      const rows = 11;
+      const cols = 23;
       const startY = launcher.value.position.y + launcher.value.bounds.max.y + spacing * 0.2;
 
-      for (let i = 0; i < rows; i++) {
-        const cols = rows - i;
-        const rowWidth = cols * spacing;
-        const startX = (render.canvas.width - rowWidth) / 2 + spacing / 2;
+for (let i = 0; i < rows; i++) {
+  const startX = (render.canvas.width - cols * spacing) / 2 + (i % 2) * spacing / 2;
 
-        for (let j = 0; j < cols; j++) {
-          const x = startX + j * spacing;
-          const y = startY + i * spacing;
-          const pin = Matter.Bodies.circle(x, y, pinRadius, {
-            isStatic: true,
-            restitution: 1.5,
-            render: {
-              fillStyle: 'transparent',
-              strokeStyle: '#f7fff7',
-              lineWidth: 4,
-            },
-          });
-          pins.push(pin);
-          Matter.World.add(engine.world, pin);
-        }
-      }
+  for (let j = 0; j < cols; j++) {
+    const x = startX + j * spacing;
+    const y = startY + i * spacing;
+    const pin = Matter.Bodies.circle(x, y, pinRadius, {
+      isStatic: true,
+      restitution: 0.4, //Za bounce
+      render: {
+        fillStyle: 'transparent',
+        strokeStyle: '#f7fff7',
+        lineWidth: 4,
+      },
+    });
+    pins.push(pin);
+    Matter.World.add(engine.world, pin);
+  }
+}
 
       const lastPin = pins.pop();
       Matter.World.remove(engine.world, lastPin);
 
       Matter.Events.on(engine, "afterUpdate", () => {
         for (let pin of pins) {
-          Matter.Body.applyForce(pin, { x: 0, y: 0 }, { x: 0.005, y: 0 });
+          Matter.Body.applyForce(pin, { x: 0, y: 0 }, { x: 0.05, y: 0 });
         }
       });
 
@@ -124,15 +123,15 @@ export default {
       for (let i = 0; i < numSections; i++) {
         let coinsValue;
         if (i === Math.floor(numSections / 2)) {
-          coinsValue = 15;
+          coinsValue = 0.4;
         } else if (i === Math.floor(numSections / 2) - 1 || i === Math.floor(numSections / 2) + 1) {
-          coinsValue = 1.2;
+          coinsValue = 0.8;
         } else if (i === Math.floor(numSections / 2) - 2 || i === Math.floor(numSections / 2) + 2) {
-          coinsValue = 0.7;
+          coinsValue = 1.4;
         } else if (i === Math.floor(numSections / 2) - 3 || i === Math.floor(numSections / 2) + 3) {
-          coinsValue = 0.3;
+          coinsValue = 2.2;
         } else {
-          coinsValue = 0.1;
+          coinsValue = 15;
         }
         const section = Matter.Bodies.rectangle(
           i * sectionWidth + sectionWidth / 2,
@@ -184,23 +183,37 @@ export default {
       Matter.World.add(engine.world, sections);
 
       Matter.Events.on(engine, "collisionStart", (event) => {
-        const pairs = event.pairs;
-        for (const pair of pairs) {
-          for (let i = 0; i < balls.length; i++) {
-            const ball = balls[i];
-            if ((pair.bodyA === ball && sections.includes(pair.bodyB)) || (pair.bodyB === ball && sections.includes(pair.bodyA))) {
-              const section = sections.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-              Matter.World.remove(engine.world, ball);
-              balls.splice(i, 1);
+  const pairs = event.pairs;
+  for (const pair of pairs) {
+    // Check if the collision is between a ball and a wall
+    if ((pair.bodyA === wallLeft && balls.includes(pair.bodyB)) || (pair.bodyB === wallLeft && balls.includes(pair.bodyA))) {
+      const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+      // Set the velocity of the ball to move it in the right direction
+      Matter.Body.setVelocity(ball, { x: 2, y: ball.velocity.y });
+    } else if ((pair.bodyA === wallRight && balls.includes(pair.bodyB)) || (pair.bodyB === wallRight && balls.includes(pair.bodyA))) {
+      const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+      // Set the velocity of the ball to move it in the left direction
+      Matter.Body.setVelocity(ball, { x: -2, y: ball.velocity.y });
+    }
 
-              if (section.coins !== undefined) {
-  coins.value += section.coins * ballCost.value;
-  updateUserCoins();
-}
-            }
-          }
+    // Existing collision detection logic
+    for (let i = 0; i < balls.length; i++) {
+      const ball = balls[i];
+      if ((pair.bodyA === ball && sections.includes(pair.bodyB)) || (pair.bodyB === ball && sections.includes(pair.bodyA))) {
+        const section = sections.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+        Matter.World.remove(engine.world, ball);
+        balls.splice(i, 1);
+
+        if (section.coins !== undefined) {
+          coins.value += section.coins * ballCost.value;
+          updateUserCoins();
         }
-      });
+      }
+    }
+  }
+});
+
+Matter.Render.run(render);
 
       Matter.Render.run(render);
 
@@ -237,7 +250,7 @@ export default {
             launcher.value.position.y,
             10,
             {
-              restitution: 1.0,
+              restitution: 0.6,
               friction: 0,
               render: { fillStyle: "#f55" },
             }
@@ -259,7 +272,7 @@ export default {
     const onLaunchMouseDown = () => {
       const numBalls = ballCost.value;
       if (numBalls < 0) return;
-      launchInterval = setInterval(launchBall, 300);
+      launchInterval = setInterval(launchBall, 10);
     };
 
     const onLaunchMouseUp = () => {
