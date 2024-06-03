@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PachinkoPage from '../views/PachinkoPage.vue'
+import MinesPage from '../views/MinesPage.vue'
 import HomePage from '../components/HomePage.vue' // import your home page component
 
 const routes = [
@@ -13,7 +14,12 @@ const routes = [
     name: 'pachinko',
     component: PachinkoPage
   },
-  // other routes...
+  {
+    path: '/mines',
+    name: 'mines',
+    component: MinesPage
+  },
+
 ]
 
 const router = createRouter({

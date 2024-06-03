@@ -72,7 +72,10 @@
 
       <!-- MINES -->
 
-      <a href="docs/mines/index.html" class="group relative block h-64 sm:h-80">
+      <router-link
+        to="/mines"
+        class="group relative block h-64 sm:h-80"
+      >
         <span
           class="absolute inset-0 border-2 border-dashed border-color"
         ></span>
@@ -104,7 +107,7 @@
             </p>
           </div>
         </div>
-      </a>
+      </router-link>
 
       <!-- BLACK JACK -->
       <!-- <a
