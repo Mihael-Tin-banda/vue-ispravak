@@ -1,21 +1,16 @@
 <template>
-  <div
-    class="w-full h-screen flex flex-col justify-between overflow-auto cutive-mono-regular"
-  >
-
-  <h1 class="text-5xl relative text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
-    "STEPS"
-  </h1>
-  
+  <div class="w-full h-screen flex flex-col justify-between overflow-auto cutive-mono-regular">
+    <h1 class="text-5xl relative text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+      "STEPS"
+    </h1>
     <!-- NAV -->
     <div class="flex justify-between items-center relative">
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }}
-      </p>
-
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }}</p>
       <div class="flex">
         <button
           id="Authenticate"
           class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2"
+          @click="authenticate"
         >
           Authenticate
         </button>
@@ -27,9 +22,7 @@
         </button>
       </div>
     </div>
-
     <!-- SECTION -->
-
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3">
       <!-- PACHINKO -->
 
@@ -204,9 +197,25 @@ export default {
       coins,
     };
   },
+  methods: {
+  authenticate() {
+    var clientId = "YOUR_CLIENT_ID"; // Replace with your client ID
+    var redirectUri = "YOUR_REDIRECT_URI"; // Replace with your redirect URI
+    var scope = "https://www.googleapis.com/auth/fitness.activity.read";
+    var authUrl =
+      "https://accounts.google.com/o/oauth2/v2/auth" +
+      "?client_id=" +
+      clientId +
+      "&redirect_uri=" +
+      redirectUri +
+      "&scope=" +
+      scope +
+      "&response_type=token";
+    window.location.href = authUrl;
+  },
+  // Other methods...
+},
 };
 </script>
-
 <style scoped>
-
 </style>
