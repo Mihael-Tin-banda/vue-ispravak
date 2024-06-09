@@ -1,29 +1,22 @@
 <template>
-  <div class="login-container">
+  <div class="login">
     <h1>Login</h1>
-    <button @click="authenticate">Login with Google</button>
+    <button @click="authenticate">Sign in with Google</button>
   </div>
 </template>
 
 <script>
-import { mapActions, mapMutations } from 'vuex';
-import { auth, provider, signInWithPopup } from '../services/firebase';
+import { auth, provider, signInWithPopup } from '../firebase';
 
 export default {
-  name: 'LoginPage',  // Promijenite naziv komponente
+  name: 'LoginPage',
   methods: {
-    ...mapActions(['fetchCoins']),
-    ...mapMutations(['setUser', 'setCoins']),
-    
     async authenticate() {
       try {
-        const result = await signInWithPopup(auth, provider);
-        const userId = result.user.uid;
-        this.setUser({ id: userId, name: result.user.displayName });
-        await this.fetchCoins(userId);
+        await signInWithPopup(auth, provider);
         this.$router.push('/');
       } catch (error) {
-        console.error("Authentication failed:", error);
+        console.error('Error during authentication', error);
       }
     },
   },
@@ -31,16 +24,11 @@ export default {
 </script>
 
 <style scoped>
-.login-container {
+.login {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-}
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
 }
 </style>

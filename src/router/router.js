@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PachinkoPage from '../views/PachinkoPage.vue'
 import MinesPage from '../views/MinesPage.vue'
 import HomePage from '../components/HomePage.vue'
-import LoginPage from '../views/LoginPage.vue' // ispravite putanju
+import LoginPage from '../views/LoginPage.vue'
 
 const routes = [
   {
