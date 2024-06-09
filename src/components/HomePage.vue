@@ -5,6 +5,7 @@
     </h1>
     <div class="flex justify-between items-center relative">
       <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }}</p>
+      <p v-if="user" class="border-color border-2 p-2 border-dashed ml-2">User: {{ user.name }}</p>
       <div class="flex">
         <button
           class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2"
@@ -127,9 +128,11 @@ export default {
   setup() {
     const store = useStore();
     const coins = computed(() => store.state.coins);
+    const user = computed(() => store.state.user);
 
     return {
       coins,
+      user,
     };
   },
   methods: {
@@ -169,7 +172,7 @@ export default {
           var pom_var = Math.round((steps / 100) * 10) / 10;
           this.$store.commit('updateCoins', parseFloat(this.$store.state.coins) + pom_var - this.steps_sub);
           this.steps_sub = pom_var;
-          await this.$store.dispatch('saveCoins', this.userId);
+          await this.$store.dispatch('saveCoins', this.user.id);
           console.log('Balance:', this.$store.state.coins);
           setTimeout(() => location.reload(), 100);
         } else if (xhr.status === 401) {

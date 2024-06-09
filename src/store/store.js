@@ -1,9 +1,10 @@
 import { createStore } from 'vuex';
-import { db, doc, getDoc, setDoc } from "../firebase";
+import { db, doc, getDoc, setDoc } from "../services/firebase";
 
 export default createStore({
   state: {
     coins: 10,
+    user: null,
   },
   mutations: {
     updateCoins(state, newCoins) {
@@ -11,6 +12,9 @@ export default createStore({
     },
     setCoins(state, coins) {
       state.coins = coins;
+    },
+    setUser(state, user) {
+      state.user = user;
     }
   },
   actions: {

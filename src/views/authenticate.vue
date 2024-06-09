@@ -7,7 +7,7 @@
 
 <script>
 import { mapActions, mapMutations } from 'vuex';
-import { auth, provider, signInWithPopup, db, doc, getDoc, setDoc } from '../firebase';
+import { auth, provider, signInWithPopup, doc, getDoc, setDoc } from '../services/firebase';
 
 export default {
   data() {
@@ -19,12 +19,13 @@ export default {
   },
   methods: {
     ...mapActions(['fetchCoins', 'saveCoins']),
-    ...mapMutations(['updateCoins', 'setCoins']),
+    ...mapMutations(['updateCoins', 'setCoins', 'setUser']),
     
     async authenticate() {
       try {
         const result = await signInWithPopup(auth, provider);
         this.userId = result.user.uid;
+        this.setUser({ id: this.userId, name: result.user.displayName });
         await this.fetchCoins(this.userId);
         const userDoc = await getDoc(doc(db, "users", this.userId));
         if (!userDoc.exists()) {

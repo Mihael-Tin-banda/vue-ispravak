@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PachinkoPage from '../views/PachinkoPage.vue'
 import MinesPage from '../views/MinesPage.vue'
-import HomePage from '../components/HomePage.vue' // import your home page component
+import HomePage from '../components/HomePage.vue'
+import LoginPage from '../views/LoginPage.vue' // ispravite putanju
 
 const routes = [
   {
@@ -19,7 +20,11 @@ const routes = [
     name: 'mines',
     component: MinesPage
   },
-
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginPage
+  },
 ]
 
 const router = createRouter({
