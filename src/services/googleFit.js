@@ -1,40 +1,33 @@
-// services/googleFit.js
-export async function getFitnessData() {
-    const accessToken = sessionStorage.getItem('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found');
-    }
-  
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startTimeMillis = startOfDay.getTime();
-    const endTimeMillis = now.getTime();
-  
-    const response = await fetch('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+import axios from 'axios';
+
+export async function getFitnessData(accessToken) {
+  try {
+    const response = await axios.post(
+      'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+      {
+        aggregateBy: [
+          {
+            dataTypeName: 'com.google.step_count.delta',
+          },
+        ],
+        bucketByTime: { durationMillis: 86400000 },
+        startTimeMillis: Date.now() - 7 * 86400000,
+        endTimeMillis: Date.now(),
       },
-      body: JSON.stringify({
-        aggregateBy: [{
-          dataTypeName: 'com.google.step_count.delta',
-          dataSourceId: 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        }],
-        bucketByTime: { durationMillis: endTimeMillis - startTimeMillis },
-        startTimeMillis,
-        endTimeMillis,
-      })
-    });
-  
-    const data = await response.json();
-    let steps = 0;
-    if (data.bucket && data.bucket.length > 0) {
-      const dataset = data.bucket[0].dataset[0];
-      if (dataset.point && dataset.point.length > 0) {
-        steps = dataset.point[0].value[0].intVal;
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
       }
-    }
-    return steps;
+    );
+    const stepCount = response.data.bucket.reduce((acc, bucket) => {
+      const steps = bucket.dataset[0]?.point[0]?.value[0]?.intVal || 0;
+      return acc + steps;
+    }, 0);
+    return stepCount;
+  } catch (error) {
+    console.error('Failed to fetch the step count data', error);
+    throw new Error('Failed to fetch the step count data');
   }
-  
+}

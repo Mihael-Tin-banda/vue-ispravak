@@ -1,4 +1,3 @@
-// store.js
 import { createStore } from 'vuex';
 import { auth, db, doc, getDoc } from '../firebase';
 

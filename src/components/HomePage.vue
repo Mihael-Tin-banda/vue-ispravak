@@ -64,8 +64,9 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import { auth, db, provider, doc, getDoc, setDoc, signInWithPopup } from '../firebase';
+import { auth, db, doc, getDoc, setDoc, signInWithPopup, GoogleAuthProvider } from '../firebase';
 import { getFitnessData } from '../services/googleFit';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
   name: 'HomePage',
@@ -80,16 +81,57 @@ export default {
   methods: {
     async authenticate() {
       try {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/fitness.activity.read');
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         console.log('User authenticated:', user);
-        // Spremi korisnika u Firebase Firestore
+
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, { email: user.email }, { merge: true });
+
+        const tokenResult = await user.getIdTokenResult();
+        if (tokenResult && tokenResult.token) {
+          const encodedToken = encodeURIComponent(tokenResult.token);
+          const redirectUrl = `${window.location.origin}${window.location.pathname}?token=${encodedToken}`;
+          window.location.href = redirectUrl;
+        } else {
+          console.error('Failed to get access token from tokenResult:', tokenResult);
+        }
       } catch (error) {
         console.error('Error during authentication', error);
       }
     },
+
+    async getTokenFromFirebaseAuth() {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const tokenResult = await user.getIdTokenResult(true);
+          if (tokenResult && tokenResult.token) {
+            console.log('Access token from Firebase Auth:', tokenResult.token);
+            return tokenResult.token;
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving token from Firebase Auth', error);
+      }
+      return null;
+    },
+
+    checkTokenValidity(token) {
+      let decodedToken = jwtDecode(token);
+      console.log('Decoded Token:', decodedToken);
+
+      if (decodedToken.aud.includes('fitness.activity.read')) {
+        console.log('Token has the necessary permissions.');
+        return true;
+      } else {
+        console.error('Token is missing the necessary permissions.');
+        return false;
+      }
+    },
+
     async handleRequest() {
       const user = auth.currentUser;
       if (!user) {
@@ -97,11 +139,38 @@ export default {
         return;
       }
 
+      console.log('User is authenticated:', user);
+
       try {
-        const steps = await getFitnessData();
+        const urlParams = new URLSearchParams(window.location.search);
+        let accessToken = urlParams.get('token');
+        console.log('Access token retrieved from URL:', accessToken);
+
+        if (!accessToken) {
+          console.warn('Access token is missing from URL, retrieving from Firebase Auth');
+          accessToken = await this.getTokenFromFirebaseAuth();
+          if (accessToken) {
+            const encodedToken = encodeURIComponent(accessToken);
+            const redirectUrl = `${window.location.origin}${window.location.pathname}?token=${encodedToken}`;
+            window.location.href = redirectUrl;
+            return;
+          } else {
+            console.error('Failed to retrieve access token');
+            return;
+          }
+        }
+
+        if (!this.checkTokenValidity(accessToken)) {
+          console.error('Access token is invalid');
+          return;
+        }
+
+        const steps = await getFitnessData(accessToken);
         console.log('Current step count:', steps);
 
         const coinsEarned = Math.round((steps / 100) * 10) / 10;
+        console.log('Coins earned:', coinsEarned);
+
         const userRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userRef);
 
@@ -109,11 +178,12 @@ export default {
           let currentCoins = userDoc.data().coins || 0;
           currentCoins += coinsEarned;
 
+          console.log('Updating coins:', currentCoins);
           await setDoc(userRef, { coins: currentCoins }, { merge: true });
 
-          // Update Vuex store
           this.$store.commit('updateCoins', currentCoins);
         } else {
+          console.log('Setting initial coins:', coinsEarned);
           await setDoc(userRef, { coins: coinsEarned }, { merge: true });
           this.$store.commit('updateCoins', coinsEarned);
         }
@@ -126,11 +196,18 @@ export default {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          this.$store.commit('updateCoins', userData.coins || 0);
+        if (navigator.onLine) {
+          try {
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              this.$store.commit('updateCoins', userData.coins || 0);
+            }
+          } catch (error) {
+            console.error('Failed to fetch user data from Firestore', error);
+          }
+        } else {
+          console.error('Client is offline');
         }
       }
     });
@@ -139,5 +216,5 @@ export default {
 </script>
 
 <style scoped>
-/* Dodajte svoje stilove ovdje */
+/* Add your styles here */
 </style>

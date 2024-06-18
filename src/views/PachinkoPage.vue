@@ -1,15 +1,16 @@
 <template>
-  <div class="flex md:flex-row flex-col justify-between items-center relative mb-4 mt-2">
-    <router-link to="/" 
-    class="border-color border-2 p-2 border-dashed ml-2 hover:bg-red-500">Go back</router-link>
-    <div class="flex flex-col md:flex-row md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
-      <label for="ballCost" class="border-color border-2 p-2 border-dashed">Ulog po loptici:</label>
-      <input type="number" v-model.number="ballCost" id="ballCost" value="1" step="0.1" min="0.1" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
-      <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" @mouseleave="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
+  <div></div>
+    <div class="flex md:flex-row flex-col justify-between items-center relative mb-4 mt-2">
+      <router-link to="/" 
+      class="border-color border-2 p-2 border-dashed ml-2 hover:bg-red-500">Go back</router-link>
+      <div class="flex flex-col md:flex-row md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+        <label for="ballCost" class="border-color border-2 p-2 border-dashed">Ulog po loptici:</label>
+        <input type="number" v-model.number="ballCost" id="ballCost" value="1" step="0.1" min="0.1" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
+        <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" @mouseleave="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
+      </div>
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }}</p>
     </div>
-    <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }}</p>
-  </div>
-  <div id="gameContent" class="flex justify-center items-center"></div>
+    <div id="gameContent" class="flex justify-center items-center"></div>
 </template>
 
 <script>
@@ -85,25 +86,25 @@ export default {
       const cols = 23;
       const startY = launcher.value.position.y + launcher.value.bounds.max.y + spacing * 0.2;
 
-for (let i = 0; i < rows; i++) {
-  const startX = (render.canvas.width - cols * spacing) / 2 + (i % 2) * spacing / 2;
+      for (let i = 0; i < rows; i++) {
+        const startX = (render.canvas.width - cols * spacing) / 2 + (i % 2) * spacing / 2;
 
-  for (let j = 0; j < cols; j++) {
-    const x = startX + j * spacing;
-    const y = startY + i * spacing;
-    const pin = Matter.Bodies.circle(x, y, pinRadius, {
-      isStatic: true,
-      restitution: 0.4, //Za bounce
-      render: {
-        fillStyle: 'transparent',
-        strokeStyle: '#f7fff7',
-        lineWidth: 4,
-      },
-    });
-    pins.push(pin);
-    Matter.World.add(engine.world, pin);
-  }
-}
+        for (let j = 0; j < cols; j++) {
+          const x = startX + j * spacing;
+          const y = startY + i * spacing;
+          const pin = Matter.Bodies.circle(x, y, pinRadius, {
+            isStatic: true,
+            restitution: 0.4, //Za bounce
+            render: {
+              fillStyle: 'transparent',
+              strokeStyle: '#f7fff7',
+              lineWidth: 4,
+            },
+          });
+          pins.push(pin);
+          Matter.World.add(engine.world, pin);
+        }
+      }
 
       const lastPin = pins.pop();
       Matter.World.remove(engine.world, lastPin);
@@ -183,55 +184,53 @@ for (let i = 0; i < rows; i++) {
       Matter.World.add(engine.world, sections);
 
       Matter.Events.on(engine, "collisionStart", (event) => {
-  const pairs = event.pairs;
-  for (const pair of pairs) {
-    // Check if the collision is between a ball and a wall
-    if ((pair.bodyA === wallLeft && balls.includes(pair.bodyB)) || (pair.bodyB === wallLeft && balls.includes(pair.bodyA))) {
-      const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-      // Set the velocity of the ball to move it in the right direction
-      Matter.Body.setVelocity(ball, { x: 2, y: ball.velocity.y });
-    } else if ((pair.bodyA === wallRight && balls.includes(pair.bodyB)) || (pair.bodyB === wallRight && balls.includes(pair.bodyA))) {
-      const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-      // Set the velocity of the ball to move it in the left direction
-      Matter.Body.setVelocity(ball, { x: -2, y: ball.velocity.y });
-    }
+        const pairs = event.pairs;
+        for (const pair of pairs) {
+          // Check if the collision is between a ball and a wall
+          if ((pair.bodyA === wallLeft && balls.includes(pair.bodyB)) || (pair.bodyB === wallLeft && balls.includes(pair.bodyA))) {
+            const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+            // Set the velocity of the ball to move it in the right direction
+            Matter.Body.setVelocity(ball, { x: 2, y: ball.velocity.y });
+          } else if ((pair.bodyA === wallRight && balls.includes(pair.bodyB)) || (pair.bodyB === wallRight && balls.includes(pair.bodyA))) {
+            const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+            // Set the velocity of the ball to move it in the left direction
+            Matter.Body.setVelocity(ball, { x: -2, y: ball.velocity.y });
+          }
 
-    // Existing collision detection logic
-    for (let i = 0; i < balls.length; i++) {
-      const ball = balls[i];
-      if ((pair.bodyA === ball && sections.includes(pair.bodyB)) || (pair.bodyB === ball && sections.includes(pair.bodyA))) {
-        const section = sections.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-        Matter.World.remove(engine.world, ball);
-        balls.splice(i, 1);
+          // Existing collision detection logic
+          for (let i = 0; i < balls.length; i++) {
+            const ball = balls[i];
+            if ((pair.bodyA === ball && sections.includes(pair.bodyB)) || (pair.bodyB === ball && sections.includes(pair.bodyA))) {
+              const section = sections.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
+              Matter.World.remove(engine.world, ball);
+              balls.splice(i, 1);
 
-        if (section.coins !== undefined) {
-          coins.value += section.coins * ballCost.value;
-          updateUserCoins();
+              if (section.coins !== undefined) {
+                coins.value += section.coins * ballCost.value;
+                updateUserCoins();
+              }
+            }
+          }
         }
-      }
-    }
-  }
-});
-
-Matter.Render.run(render);
+      });
 
       Matter.Render.run(render);
 
       Matter.Events.on(render, 'afterRender', function() {
-  render.context.font = '1rem Cutive Mono';
-  render.context.fillStyle = 'white';
-  render.context.textAlign = 'center';
-  render.context.textBaseline = 'middle';
-  sections.forEach(section => {
-    if(section.coins !== undefined) {
-    render.context.fillText(
-      `${section.coins}`,
-      section.position.x,
-      section.position.y
-    );
-    }
-  });
-});
+        render.context.font = '1rem Cutive Mono';
+        render.context.fillStyle = 'white';
+        render.context.textAlign = 'center';
+        render.context.textBaseline = 'middle';
+        sections.forEach(section => {
+          if(section.coins !== undefined) {
+            render.context.fillText(
+              `${section.coins}`,
+              section.position.x,
+              section.position.y
+            );
+          }
+        });
+      });
 
       updateUserCoins();
     };
@@ -303,14 +302,14 @@ Matter.Render.run(render);
 </script>
 
 <style scoped>
-    input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  
-  input[type=number] {
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 </style>
