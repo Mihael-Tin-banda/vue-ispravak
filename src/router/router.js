@@ -3,7 +3,6 @@ import PachinkoPage from '../views/PachinkoPage.vue';
 import MinesPage from '../views/MinesPage.vue';
 import HomePage from '../components/HomePage.vue';
 import LoginPage from '../views/LoginPage.vue';
-import DashboardPage from '../components/DashboardPage.vue';  // Ažurirana putanja i naziv
 
 const routes = [
   {
@@ -25,11 +24,6 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginPage
-  },
-  {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: DashboardPage  // Ažurirana komponenta
   }
 ];
 
