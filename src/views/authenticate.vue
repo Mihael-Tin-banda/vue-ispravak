@@ -8,7 +8,7 @@
 <script>
 import { mapActions, mapMutations } from 'vuex';
 import { auth, provider, signInWithPopup, doc, getDoc, setDoc, db } from '../firebase';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
   data() {
@@ -38,6 +38,7 @@ export default {
         const tokenResult = await user.getIdTokenResult();
         if (tokenResult && tokenResult.token) {
           sessionStorage.setItem('access_token', tokenResult.token);
+          sessionStorage.setItem('refresh_token', user.stsTokenManager.refreshToken);
           console.log('Access token set in session storage:', tokenResult.token);
         } else {
           console.error('Failed to get access token from tokenResult:', tokenResult);
@@ -53,9 +54,7 @@ export default {
         return;
       }
 
-      let access_token = sessionStorage.getItem('access_token');
-      console.log('Access token retrieved from session storage:', access_token);
-
+      let access_token = sessionStorage.getItem("access_token");
       if (!access_token) {
         console.log("Access token is missing, retrieving from Firebase Auth");
         const tokenResult = await auth.currentUser.getIdTokenResult(true);
@@ -136,6 +135,10 @@ export default {
     },
   },
   mounted() {
+    const accessToken = sessionStorage.getItem('access_token');
+    if (accessToken) {
+      sessionStorage.setItem('access_token', accessToken);
+    }
     setInterval(() => {
       const now = new Date();
       if (now.getHours() === 0 && now.getMinutes() === 0) {
