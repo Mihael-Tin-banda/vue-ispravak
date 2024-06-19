@@ -66,7 +66,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { auth, db, doc, getDoc, setDoc, signInWithPopup, GoogleAuthProvider } from '../firebase';
 import { getFitnessData } from '../services/googleFit';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 
 export default {
   name: 'HomePage',
