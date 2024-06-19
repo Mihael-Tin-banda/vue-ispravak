@@ -66,7 +66,6 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { auth, db, doc, getDoc, setDoc, signInWithPopup, GoogleAuthProvider } from '../firebase';
 import { getFitnessData } from '../services/googleFit';
-import jwtDecode from 'jwt-decode';
 
 export default {
   name: 'HomePage',
@@ -118,19 +117,6 @@ export default {
       return null;
     },
 
-    checkTokenValidity(token) {
-      const decodedToken = jwtDecode(token);
-      console.log('Decoded Token:', decodedToken);
-
-      if (decodedToken.aud.includes('fitness.activity.read')) {
-        console.log('Token has the necessary permissions.');
-        return true;
-      } else {
-        console.error('Token is missing the necessary permissions.');
-        return false;
-      }
-    },
-
     async handleRequest() {
       const user = auth.currentUser;
       if (!user) {
@@ -152,11 +138,6 @@ export default {
             console.error('Failed to retrieve access token');
             return;
           }
-        }
-
-        if (!this.checkTokenValidity(accessToken)) {
-          console.error('Access token is invalid');
-          return;
         }
 
         const steps = await getFitnessData(accessToken);

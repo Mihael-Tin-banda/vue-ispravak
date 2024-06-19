@@ -8,7 +8,6 @@
 <script>
 import { mapActions, mapMutations } from 'vuex';
 import { auth, provider, signInWithPopup, doc, getDoc, setDoc, db } from '../firebase';
-import { jwtDecode } from 'jwt-decode';
 
 export default {
   data() {
@@ -60,11 +59,6 @@ export default {
         const tokenResult = await auth.currentUser.getIdTokenResult(true);
         access_token = tokenResult.token;
         sessionStorage.setItem('access_token', access_token);
-      }
-
-      if (!this.checkTokenValidity(access_token)) {
-        console.error('Access token is invalid');
-        return;
       }
 
       const startOfDay = new Date();
@@ -122,14 +116,25 @@ export default {
     },
 
     checkTokenValidity(token) {
-      let decodedToken = jwtDecode(token);
-      console.log('Decoded Token:', decodedToken);
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
 
-      if (decodedToken.scope && decodedToken.scope.includes('https://www.googleapis.com/auth/fitness.activity.read')) {
-        console.log('Token has the necessary permissions.');
-        return true;
-      } else {
-        console.error('Token is missing the necessary permissions.');
+        const decodedToken = JSON.parse(jsonPayload);
+        console.log('Decoded Token:', decodedToken);
+
+        if (decodedToken.scope && decodedToken.scope.includes('https://www.googleapis.com/auth/fitness.activity.read')) {
+          console.log('Token has the necessary permissions.');
+          return true;
+        } else {
+          console.error('Token is missing the necessary permissions.');
+          return false;
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
         return false;
       }
     },
