@@ -90,14 +90,7 @@ export default {
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, { email: user.email }, { merge: true });
 
-        const tokenResult = await user.getIdTokenResult();
-        if (tokenResult && tokenResult.token) {
-          const encodedToken = encodeURIComponent(tokenResult.token);
-          const redirectUrl = `${window.location.origin}${window.location.pathname}?token=${encodedToken}`;
-          window.location.href = redirectUrl;
-        } else {
-          console.error('Failed to get access token from tokenResult:', tokenResult);
-        }
+        this.$router.push('/dashboard');
       } catch (error) {
         console.error('Error during authentication', error);
       }
@@ -142,22 +135,10 @@ export default {
       console.log('User is authenticated:', user);
 
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        let accessToken = urlParams.get('token');
-        console.log('Access token retrieved from URL:', accessToken);
-
+        let accessToken = await this.getTokenFromFirebaseAuth();
         if (!accessToken) {
-          console.warn('Access token is missing from URL, retrieving from Firebase Auth');
-          accessToken = await this.getTokenFromFirebaseAuth();
-          if (accessToken) {
-            const encodedToken = encodeURIComponent(accessToken);
-            const redirectUrl = `${window.location.origin}${window.location.pathname}?token=${encodedToken}`;
-            window.location.href = redirectUrl;
-            return;
-          } else {
-            console.error('Failed to retrieve access token');
-            return;
-          }
+          console.error('Failed to retrieve access token');
+          return;
         }
 
         if (!this.checkTokenValidity(accessToken)) {
