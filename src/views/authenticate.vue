@@ -37,9 +37,8 @@ export default {
 
         const tokenResult = await user.getIdTokenResult();
         if (tokenResult && tokenResult.token) {
-          const encodedToken = encodeURIComponent(tokenResult.token);
-          const redirectUrl = `${window.location.origin}${window.location.pathname}?access_token=${encodedToken}`;
-          window.location.href = redirectUrl;
+          sessionStorage.setItem('access_token', tokenResult.token);
+          console.log('Access token set in session storage:', tokenResult.token);
         } else {
           console.error('Failed to get access token from tokenResult:', tokenResult);
         }
@@ -54,9 +53,8 @@ export default {
         return;
       }
 
-      const urlParams = new URLSearchParams(window.location.search);
-      let access_token = urlParams.get('access_token');
-      console.log('Access token retrieved from URL:', access_token);
+      let access_token = sessionStorage.getItem('access_token');
+      console.log('Access token retrieved from session storage:', access_token);
 
       if (!access_token) {
         console.log("Access token is missing, retrieving from Firebase Auth");
@@ -138,10 +136,6 @@ export default {
     },
   },
   mounted() {
-    const accessToken = new URLSearchParams(window.location.search).get('access_token');
-    if (accessToken) {
-      sessionStorage.setItem('access_token', accessToken);
-    }
     setInterval(() => {
       const now = new Date();
       if (now.getHours() === 0 && now.getMinutes() === 0) {

@@ -90,7 +90,13 @@ export default {
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, { email: user.email }, { merge: true });
 
-        this.$router.push('/dashboard');
+        const tokenResult = await user.getIdTokenResult();
+        if (tokenResult && tokenResult.token) {
+          sessionStorage.setItem('access_token', tokenResult.token);
+          console.log('Access token set in session storage:', tokenResult.token);
+        } else {
+          console.error('Failed to get access token from tokenResult:', tokenResult);
+        }
       } catch (error) {
         console.error('Error during authentication', error);
       }
@@ -113,7 +119,7 @@ export default {
     },
 
     checkTokenValidity(token) {
-      let decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode(token);
       console.log('Decoded Token:', decodedToken);
 
       if (decodedToken.aud.includes('fitness.activity.read')) {
@@ -135,10 +141,17 @@ export default {
       console.log('User is authenticated:', user);
 
       try {
-        let accessToken = await this.getTokenFromFirebaseAuth();
+        let accessToken = sessionStorage.getItem('access_token');
         if (!accessToken) {
-          console.error('Failed to retrieve access token');
-          return;
+          console.warn('Access token is missing from session storage, retrieving from Firebase Auth');
+          accessToken = await this.getTokenFromFirebaseAuth();
+          if (accessToken) {
+            sessionStorage.setItem('access_token', accessToken);
+            console.log('Access token set in session storage:', accessToken);
+          } else {
+            console.error('Failed to retrieve access token');
+            return;
+          }
         }
 
         if (!this.checkTokenValidity(accessToken)) {
