@@ -117,47 +117,34 @@ export default {
       return null;
     },
 
-    async refreshAccessToken() {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const tokenResult = await user.getIdTokenResult(true); // Force refresh
-          if (tokenResult && tokenResult.token) {
-            sessionStorage.setItem('access_token', tokenResult.token);
-            return tokenResult.token;
-          }
-        }
-      } catch (error) {
-        console.error('Error refreshing access token:', error);
-      }
-      return null;
-    },
-
     async handleRequest() {
       const user = auth.currentUser;
       if (!user) {
-        console.log('You need to authenticate first');
+           console.log('You need to authenticate first');
         return;
       }
 
       console.log('User is authenticated:', user);
 
-      try {
-        let accessToken = sessionStorage.getItem('access_token');
-        if (!accessToken || !this.checkTokenValidity(accessToken)) {
-          console.warn('Access token is missing or invalid, refreshing token');
-          accessToken = await this.refreshAccessToken();
-          if (!accessToken) {
-            console.error('Failed to retrieve or refresh access token');
+     try {
+       let accessToken = sessionStorage.getItem('access_token');
+       if (!accessToken) {
+          console.warn('Access token is missing from session storage, retrieving from Firebase Auth');
+          accessToken = await this.getTokenFromFirebaseAuth();
+         if (accessToken) {
+           sessionStorage.setItem('access_token', accessToken);
+            console.log('Access token set in session storage:', accessToken);
+          } else {
+            console.error('Failed to retrieve access token');
             return;
           }
-        }
+       }
 
-        const steps = await getFitnessData(accessToken);
-        if (!steps) {
+      const steps = await getFitnessData(accessToken);
+      if (!steps) {
           console.error('Failed to fetch the step count data');
-          return;
-        }
+         return;
+       }
         console.log('Current step count:', steps);
 
         const coinsEarned = Math.round((steps / 100) * 10) / 10;
@@ -181,30 +168,6 @@ export default {
         }
       } catch (error) {
         console.error('Failed to fetch the step count data', error);
-      }
-    },
-
-    checkTokenValidity(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        const decodedToken = JSON.parse(jsonPayload);
-        console.log('Decoded Token:', decodedToken);
-
-        if (decodedToken.scope && decodedToken.scope.includes('https://www.googleapis.com/auth/fitness.activity.read')) {
-          console.log('Token has the necessary permissions.');
-          return true;
-        } else {
-          console.error('Token is missing the necessary permissions.');
-          return false;
-        }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return false;
       }
     },
   },
