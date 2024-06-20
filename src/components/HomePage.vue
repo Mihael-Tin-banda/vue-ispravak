@@ -102,20 +102,20 @@ export default {
     },
 
     async getTokenFromFirebaseAuth() {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const tokenResult = await user.getIdTokenResult(true);
-          if (tokenResult && tokenResult.token) {
-            console.log('Access token from Firebase Auth:', tokenResult.token);
-            return tokenResult.token;
-          }
-        }
-      } catch (error) {
-        console.error('Error retrieving token from Firebase Auth', error);
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const tokenResult = await user.getIdTokenResult(true); // Pass true to force refresh
+      if (tokenResult && tokenResult.token) {
+        console.log('Access token from Firebase Auth:', tokenResult.token);
+        return tokenResult.token;
       }
-      return null;
-    },
+    }
+  } catch (error) {
+    console.error('Error retrieving token from Firebase Auth', error);
+  }
+  return null;
+},
 
     async handleRequest() {
       const user = auth.currentUser;
