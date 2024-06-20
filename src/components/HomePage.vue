@@ -140,7 +140,7 @@ export default {
     async refreshAccessToken() {
       try {
         const refreshToken = sessionStorage.getItem('refresh_token');
-        const response = await fetch('https://securetoken.googleapis.com/v1/token?key=AIzaSyCa_Fi6DH0r0Eg-dytRD2Q-Psv705K-Vgk', {
+        const response = await fetch('https://securetoken.googleapis.com/v1/token?key=AIzaSyA-YuDAXpZgtKgjHyfQXir-J1siWselhDU', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -152,8 +152,7 @@ export default {
         });
         const data = await response.json();
         if (data.access_token) {
-          console.log('New access token:', data.access_token);
-          sessionStorage.setItem('access_token', data.access_token);
+          console.log('Refreshed access token:', data.access_token);
           return data.access_token;
         } else {
           console.error('Failed to refresh access token:', data);
