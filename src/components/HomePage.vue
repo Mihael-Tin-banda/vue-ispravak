@@ -132,7 +132,13 @@ export default {
           })
         });
         const data = await response.json();
-        return data.access_token;
+        if (data.access_token) {
+          console.log('New access token:', data.access_token);
+          sessionStorage.setItem('access_token', data.access_token);
+          return data.access_token;
+        } else {
+          console.error('Failed to refresh access token:', data);
+        }
       } catch (error) {
         console.error('Failed to refresh access token:', error);
         return null;
