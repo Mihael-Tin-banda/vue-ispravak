@@ -3,7 +3,7 @@ import { auth, db, doc, getDoc } from '../firebase';
 
 export default createStore({
   state: {
-    coins: 0,
+    coins: 10,
   },
   mutations: {
     updateCoins(state, newCoins) {

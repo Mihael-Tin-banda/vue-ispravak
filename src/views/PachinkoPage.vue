@@ -271,7 +271,7 @@ export default {
     const onLaunchMouseDown = () => {
       const numBalls = ballCost.value;
       if (numBalls < 0) return;
-      launchInterval = setInterval(launchBall, 10);
+      launchInterval = setInterval(launchBall, 300);
     };
 
     const onLaunchMouseUp = () => {
