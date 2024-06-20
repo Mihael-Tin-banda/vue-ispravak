@@ -21,13 +21,20 @@ export async function getFitnessData(accessToken) {
         },
       }
     );
+
+    if (response.status === 401) {
+      console.error('Access token is invalid or expired');
+      return null;
+    }
+
     const stepCount = response.data.bucket.reduce((acc, bucket) => {
       const steps = bucket.dataset[0]?.point[0]?.value[0]?.intVal || 0;
       return acc + steps;
     }, 0);
+
     return stepCount;
   } catch (error) {
     console.error('Failed to fetch the step count data', error);
-    throw new Error('Failed to fetch the step count data');
+    return null;
   }
 }
