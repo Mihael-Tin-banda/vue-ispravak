@@ -120,31 +120,31 @@ export default {
     async handleRequest() {
       const user = auth.currentUser;
       if (!user) {
-           console.log('You need to authenticate first');
+        console.log('You need to authenticate first');
         return;
       }
 
       console.log('User is authenticated:', user);
 
-     try {
-       let accessToken = sessionStorage.getItem('access_token');
-       if (!accessToken) {
+      try {
+        let accessToken = sessionStorage.getItem('access_token');
+        if (!accessToken) {
           console.warn('Access token is missing from session storage, retrieving from Firebase Auth');
           accessToken = await this.getTokenFromFirebaseAuth();
-         if (accessToken) {
-           sessionStorage.setItem('access_token', accessToken);
+          if (accessToken) {
+            sessionStorage.setItem('access_token', accessToken);
             console.log('Access token set in session storage:', accessToken);
           } else {
             console.error('Failed to retrieve access token');
             return;
           }
-       }
+        }
 
-      const steps = await getFitnessData(accessToken);
-      if (!steps) {
+        const steps = await getFitnessData(accessToken);
+        if (!steps) {
           console.error('Failed to fetch the step count data');
-         return;
-       }
+          return;
+        }
         console.log('Current step count:', steps);
 
         const coinsEarned = Math.round((steps / 100) * 10) / 10;
