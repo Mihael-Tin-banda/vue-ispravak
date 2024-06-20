@@ -4,7 +4,7 @@
       "STEPS"
     </h1>
     <div class="flex justify-between items-center relative">
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }}</p>
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }} KK</p>
       <div class="flex">
         <button id="Authenticate" class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2" @click="authenticate">
           Authenticate
@@ -43,7 +43,7 @@
           </div>
         </div>
       </router-link>
-      <router-link to="/lucky-numbers" class="group relative block h-64 sm:h-80">
+      <router-link to="/lucky" class="group relative block h-64 sm:h-80">
         <span class="absolute inset-0 border-2 border-dashed border-color"></span>
         <div class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
           <div class="p-4 !pt-0 transition-opacity group-hover:absolute group-hover:opacity-0 sm:p-6 lg:p-8">

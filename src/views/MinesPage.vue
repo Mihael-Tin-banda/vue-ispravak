@@ -12,7 +12,7 @@
         <button id="withdrawButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" v-if="gameActive" @click="withdraw">Withdraw</button>
       </div>
 
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">{{ coins }}</p>
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }} KK</p>
     </div>
 
     <div class="flex justify-center items-center mt-12">

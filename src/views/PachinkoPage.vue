@@ -8,7 +8,7 @@
         <input type="number" v-model.number="ballCost" id="ballCost" value="1" step="0.1" min="0.1" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
         <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" @mouseleave="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
       </div>
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }}</p>
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }} KK</p>
     </div>
     <div id="gameContent" class="flex justify-center items-center"></div>
 </template>
