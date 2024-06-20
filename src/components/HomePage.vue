@@ -140,7 +140,7 @@ export default {
     async refreshAccessToken() {
       try {
         const refreshToken = sessionStorage.getItem('refresh_token');
-        const response = await fetch('https://securetoken.googleapis.com/v1/token?key=AIzaSyA-YuDAXpZgtKgjHyfQXir-J1siWselhDU', {
+        const response = await fetch('https://securetoken.googleapis.com/v1/token?key=AIzaSyCa_Fi6DH0r0Eg-dytRD2Q-Psv705K-Vgk', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
