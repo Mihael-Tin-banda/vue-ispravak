@@ -78,6 +78,15 @@ export default {
     };
   },
   methods: {
+    base64UrlDecode(input) {
+      const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+      const decodedData = atob(base64);
+      const jsonPayload = decodeURIComponent(decodedData.split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    },
+
     async authenticate() {
       try {
         const provider = new GoogleAuthProvider();
@@ -94,6 +103,16 @@ export default {
           sessionStorage.setItem('access_token', tokenResult.token);
           sessionStorage.setItem('refresh_token', user.stsTokenManager.refreshToken);
           console.log('Access token set in session storage:', tokenResult.token);
+
+          // Decode the token to check scopes
+          const base64Url = tokenResult.token.split('.')[1];
+          const decodedToken = this.base64UrlDecode(base64Url);
+          console.log('Decoded token:', decodedToken);
+          if (!decodedToken.scope || !decodedToken.scope.includes('https://www.googleapis.com/auth/fitness.activity.read')) {
+            console.error('Required scope is missing in the token');
+          } else {
+            console.log('Token includes required scope');
+          }
         } else {
           console.error('Failed to get access token from tokenResult:', tokenResult);
         }
@@ -133,8 +152,7 @@ export default {
         });
         const data = await response.json();
         if (data.access_token) {
-          console.log('New access token:', data.access_token);
-          sessionStorage.setItem('access_token', data.access_token);
+          console.log('Refreshed access token:', data.access_token);
           return data.access_token;
         } else {
           console.error('Failed to refresh access token:', data);
