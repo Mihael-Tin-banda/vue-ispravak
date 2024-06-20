@@ -92,6 +92,7 @@ export default {
         const tokenResult = await user.getIdTokenResult();
         if (tokenResult && tokenResult.token) {
           sessionStorage.setItem('access_token', tokenResult.token);
+          sessionStorage.setItem('refresh_token', user.stsTokenManager.refreshToken);
           console.log('Access token set in session storage:', tokenResult.token);
         } else {
           console.error('Failed to get access token from tokenResult:', tokenResult);
@@ -102,49 +103,70 @@ export default {
     },
 
     async getTokenFromFirebaseAuth() {
-  try {
-    const user = auth.currentUser;
-    if (user) {
-      const tokenResult = await user.getIdTokenResult(true); // Pass true to force refresh
-      if (tokenResult && tokenResult.token) {
-        console.log('Access token from Firebase Auth:', tokenResult.token);
-        return tokenResult.token;
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const tokenResult = await user.getIdTokenResult(true);
+          if (tokenResult && tokenResult.token) {
+            console.log('Access token from Firebase Auth:', tokenResult.token);
+            return tokenResult.token;
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving token from Firebase Auth', error);
       }
-    }
-  } catch (error) {
-    console.error('Error retrieving token from Firebase Auth', error);
-  }
-  return null;
-},
+      return null;
+    },
+
+    async refreshAccessToken() {
+      try {
+        const refreshToken = sessionStorage.getItem('refresh_token');
+        const response = await fetch('https://securetoken.googleapis.com/v1/token?key=AIzaSyA-YuDAXpZgtKgjHyfQXir-J1siWselhDU', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+          })
+        });
+        const data = await response.json();
+        return data.access_token;
+      } catch (error) {
+        console.error('Failed to refresh access token:', error);
+        return null;
+      }
+    },
 
     async handleRequest() {
       const user = auth.currentUser;
       if (!user) {
-           console.log('You need to authenticate first');
+        console.log('You need to authenticate first');
         return;
       }
 
       console.log('User is authenticated:', user);
 
-     try {
-       let accessToken = sessionStorage.getItem('access_token');
-       if (!accessToken) {
+      try {
+        let accessToken = sessionStorage.getItem('access_token');
+        if (!accessToken) {
           console.warn('Access token is missing from session storage, retrieving from Firebase Auth');
           accessToken = await this.getTokenFromFirebaseAuth();
-         if (accessToken) {
-           sessionStorage.setItem('access_token', accessToken);
+          if (accessToken) {
+            sessionStorage.setItem('access_token', accessToken);
             console.log('Access token set in session storage:', accessToken);
           } else {
             console.error('Failed to retrieve access token');
             return;
           }
-       }
+        }
 
-      const steps = await getFitnessData(accessToken);
-      if (!steps) {
+        const steps = await getFitnessData(accessToken);
+        if (!steps) {
           console.error('Failed to fetch the step count data');
-         return;
-       }
+          return;
+        }
         console.log('Current step count:', steps);
 
         const coinsEarned = Math.round((steps / 100) * 10) / 10;
@@ -167,7 +189,18 @@ export default {
           this.$store.commit('updateCoins', coinsEarned);
         }
       } catch (error) {
-        console.error('Failed to fetch the step count data', error);
+        if (error.response && error.response.status === 401) {
+          console.warn('Access token expired, refreshing...');
+          const newAccessToken = await this.refreshAccessToken();
+          if (newAccessToken) {
+            sessionStorage.setItem('access_token', newAccessToken);
+            this.handleRequest();
+          } else {
+            console.error('Failed to refresh access token');
+          }
+        } else {
+          console.error('Failed to fetch the step count data', error);
+        }
       }
     },
   },
