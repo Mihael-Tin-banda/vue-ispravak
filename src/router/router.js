@@ -3,6 +3,7 @@ import PachinkoPage from '../views/PachinkoPage.vue';
 import MinesPage from '../views/MinesPage.vue';
 import HomePage from '../components/HomePage.vue';
 import LuckyNumbers from '../views/LuckyNumbers.vue'
+import WordlePage from '../views/WordlePage.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/lucky',
     name: 'lucky',
     component: LuckyNumbers
+  },
+  {
+    path: '/wordle',
+    name: 'wordle',
+    component: WordlePage
   }
 ];
 
