@@ -1,45 +1,39 @@
 <template>
-  <div>
-    <div class="flex flex-col md:flex-row justify-between items-center relative mt-2">
-      <router-link to="/" class="border-color border-2 p-2 border-dashed mb-2 md:mb-0 md:ml-2 hover:bg-red-500">Go back</router-link>
+  <div class="flex flex-col md:flex-row justify-between items-center relative mt-2">
+    <router-link to="/" class="border-color border-2 p-2 border-dashed mb-2 md:mb-0 md:ml-2 hover:bg-red-500">Go back</router-link>
 
-      <div class="flex flex-col md:flex-row items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 space-y-2 md:space-y-0 md:space-x-2">
-        <p id="multiply" class="border-color border-2 p-2 border-dashed">Multiply: {{ multiply.toFixed(1) }}</p>
-
-        <input type="number" id="betInput" min="0.1" step="0.1" v-model="betValue" class="focus:outline-0 border-2 border-dashed text-center bg-color text-color p-2" :disabled="gameActive">
-
-        <button id="placeBetButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" @click="placeBet" v-if="!gameActive">Place Bet</button>
-        <button id="withdrawButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" v-if="gameActive" @click="withdraw">Withdraw</button>
-      </div>
-
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed mt-2 md:mt-0">Coins: {{ coins }} KK</p>
+    <div class="flex flex-col md:flex-row items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 space-y-2 md:space-y-0 md:space-x-2">
+      <p id="multiply" class="border-color border-2 p-2 border-dashed">Multiply: {{ multiply.toFixed(1) }}</p>
+      <input type="number" id="betInput" min="0.1" step="0.1" v-model="betValue" class="focus:outline-0 border-2 border-dashed text-center bg-color text-color p-2" :disabled="gameActive">
+      <button id="placeBetButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" @click="placeBet" v-if="!gameActive">Place Bet</button>
     </div>
 
-    <div class="wordle-game flex flex-col items-center justify-center mx-auto w-full md:w-3/4 lg:w-1/2" tabindex="0" ref="gameArea">
-      <div class="grid gap-1 mb-4">
-        <div v-for="n in maxGuesses" :key="n" class="flex justify-center">
-          <div v-for="m in solution.length" :key="`guess-${n}-char-${m}`" class="w-12 h-12 sm:w-14 sm:h-14 border-2 flex justify-center items-center m-0.5 text-lg sm:text-xl" :class="getCellClass(n-1, m-1)">
-            <span>{{ getChar(n-1, m-1) }}</span>
-          </div>
+    <p id="coinDisplay" class="border-color border-2 p-2 border-dashed mt-2 md:mt-0">Coins: {{ coins }} KK</p>
+  </div>
+  <div class="wordle-game flex flex-col items-center justify-center mx-auto w-full md:w-3/4 lg:w-1/2" @keydown="handleKeydown" tabindex="0" ref="gameArea">
+    <div class="grid gap-1 mb-4">
+      <div v-for="n in maxGuesses" :key="n" class="flex justify-center">
+        <div v-for="m in solution.length" :key="`guess-${n}-char-${m}`" class="w-12 h-12 sm:w-14 sm:h-14 border-2 flex justify-center items-center m-0.5 text-lg sm:text-xl" :class="getCellClass(n-1, m-1)">
+          <span>{{ getChar(n-1, m-1) }}</span>
         </div>
       </div>
+    </div>
 
-      <div v-if="gameOver" class="game-over mb-4">
-        <p>{{ gameStatusMessage }}</p>
-        <button @click="resetGame" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Restart</button>
-      </div>
+    <div v-if="gameOver" class="game-over mb-4">
+      <p>{{ gameStatusMessage }}</p>
+      <button @click="resetGame" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Restart</button>
+    </div>
 
-      <div class="keyboard mt-4 fixed bottom-0 inset-x-0 px-1 sm:px-2">
-        <div v-for="(row, rowIndex) in keyboardLayout" :key="rowIndex" class="keyboard-row flex justify-center mb-1 sm:mb-2">
-          <button v-for="key in row" :key="key" :class="keyClass(key)" @click="addLetter(key)" class="keyboard-key bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-2 sm:py-3 sm:px-3 rounded mx-0.5 text-base sm:text-lg">{{ key }}</button>
-        </div>
+    <div class="keyboard mt-4 mb-4">
+      <div v-for="(row, rowIndex) in keyboardLayout" :key="rowIndex" class="keyboard-row flex justify-center mb-1 sm:mb-2">
+        <button v-for="key in row" :key="key" :class="keyClass(key)" @click="addLetter(key)" class="keyboard-key bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-2 sm:py-3 sm:px-3 rounded mx-0.5 text-base sm:text-lg">{{ key }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import words from '@/assets/words.txt';
 import { auth, db, doc, setDoc } from '../firebase';
@@ -48,12 +42,11 @@ export default {
   name: 'WordlePage',
   setup() {
     const store = useStore();
-    const coins = ref(store.state.coins);
+    const coins = computed(() => store.state.coins);
     const betValue = ref(1);
     const gameActive = ref(false);
-    const multiply = ref(1.0);
+    const multiply = ref(0.4);
     const currentBet = ref(0);
-
     const solution = ref('');
     const guesses = ref([]);
     const currentGuess = ref('');
@@ -78,53 +71,6 @@ export default {
       return '';
     });
 
-    onMounted(() => {
-      fetchWords().then(() => {
-        randomizeSolution();
-        focusGameArea();
-        window.addEventListener('keydown', handleKeydown);
-      });
-    });
-
-    const updateUserCoins = async (newCoins) => {
-      coins.value = parseFloat(newCoins).toFixed(2);
-      store.commit('updateCoins', parseFloat(coins.value));
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, { coins: parseFloat(newCoins) }, { merge: true });
-      }
-    };
-
-    const placeBet = () => {
-      if (betValue.value > coins.value) {
-        alert("You don't have enough coins to place this bet.");
-        return;
-      }
-      currentBet.value = betValue.value;
-      updateUserCoins(coins.value - betValue.value);
-      gameActive.value = true;
-      resetGame();
-      focusGameArea();
-    };
-
-    const withdraw = async () => {
-      const winnings = currentBet.value * multiply.value;
-      const newCoinsValue = parseFloat(coins.value) + winnings;
-      await updateUserCoins(newCoinsValue.toFixed(2));
-      gameActive.value = false;
-      currentBet.value = 0;
-      multiply.value = 1.0; // Reset the multiplier
-    };
-
-    const resetGame = () => {
-      guesses.value = [];
-      currentGuess.value = '';
-      letterFeedback.value = {};
-      randomizeSolution();
-      focusGameArea();
-    };
-
     const fetchWords = async () => {
       possibleSolutions.value = words.split('\n').map(word => word.trim()).filter(word => word.length);
     };
@@ -137,9 +83,42 @@ export default {
       }
     };
 
+    const placeBet = async () => {
+      if (betValue.value > coins.value) {
+        alert("You don't have enough coins to place this bet.");
+        return;
+      }
+      currentBet.value = betValue.value;
+      await updateUserCoins(coins.value - betValue.value);
+      gameActive.value = true;
+      nextTick(() => {
+        focusGameArea();
+      });
+    };
+
+    const updateUserCoins = async (newCoins) => {
+      store.commit('updateCoins', parseFloat(newCoins).toFixed(2));
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { coins: parseFloat(newCoins) }, { merge: true });
+      }
+    };
+
+    const resetGame = async () => {
+      guesses.value = [];
+      currentGuess.value = '';
+      letterFeedback.value = {};
+      randomizeSolution();
+      gameActive.value = false;
+      currentBet.value = 0;
+      multiply.value = 0.4;
+      await nextTick();
+      focusGameArea();
+    };
+
     const handleKeydown = (event) => {
       if (!gameActive.value) return;
-
       const key = event.key.toLowerCase();
       if (key === 'enter') {
         if (currentGuess.value && (!guesses.value.length || !guesses.value[guesses.value.length - 1].isSubmitted)) {
@@ -154,41 +133,40 @@ export default {
       } else if (key.length === 1 && key >= 'a' && key <= 'z') {
         addLetter(key);
       }
+      maintainFocus();
     };
 
     const maintainFocus = () => {
-      focusGameArea();
+      if (gameArea.value) {
+        gameArea.value.focus();
+      }
     };
 
-    const submitGuess = () => {
+    const submitGuess = async () => {
       if (currentGuess.value.length === solution.value.length) {
-        if (possibleSolutions.value.includes(currentGuess.value)) {
+        const isWordValid = possibleSolutions.value.includes(currentGuess.value);
+        if (isWordValid) {
           const guessFeedback = currentGuess.value.split('').map((char, index) => {
             const feedbackClass = getCharClass(char, index);
+            if (feedbackClass === 'correct' && !(letterFeedback.value[char] === 'correct')) {
+              multiply.value += 0.2;
+            }
             letterFeedback.value[char] = feedbackClass;
             return { char, class: feedbackClass };
           });
           const isCorrect = currentGuess.value === solution.value;
           guesses.value.push({ chars: guessFeedback, isCorrect, isSubmitted: true });
           currentGuess.value = '';
-          selectedLetters.value = [];
-          if (isCorrect) {
-            multiply.value += 1;
-          } else {
-            multiply.value += guessFeedback.filter(feedback => feedback.class === 'correct').length * 0.1;
-          }
           if (gameOver.value) {
-            if (!isCorrect) {
-              alert(`Game Over! The word was ${solution.value}.`);
-            }
-            gameActive.value = false;
-            focusGameArea();
+            const winnings = currentBet.value * multiply.value;
+            await updateUserCoins(parseFloat(coins.value) + winnings);
           }
+          selectedLetters.value = [];
         } else {
-          alert('Please enter a valid word.');
+          alert('Invalid word');
         }
       } else {
-        alert(`Guess must be ${solution.value.length} letters.`);
+        alert('Guess must be ' + solution.value.length + ' letters.');
       }
     };
 
@@ -198,9 +176,15 @@ export default {
       return 'absent';
     };
 
+    const keyClass = (key) => {
+      if (letterFeedback.value[key] === 'correct') return 'correct-key';
+      if (letterFeedback.value[key] === 'present') return 'present-key';
+      if (letterFeedback.value[key] === 'absent') return 'absent-key';
+      return '';
+    };
+
     const addLetter = (key) => {
       if (!gameActive.value) return;
-
       if (key === '✅') {
         submitGuess();
       } else if (key === '❌') {
@@ -235,22 +219,24 @@ export default {
       return '';
     };
 
-    const keyClass = (key) => {
-      if (letterFeedback.value[key] === 'correct') return 'correct-key';
-      if (letterFeedback.value[key] === 'present') return 'present-key';
-      if (letterFeedback.value[key] === 'absent') return 'absent-key';
-      return '';
+    const focusGameArea = () => {
+      if (gameArea.value) {
+        gameArea.value.focus();
+      }
     };
 
     const blurFocus = () => {
       document.activeElement.blur();
     };
 
-    const focusGameArea = () => {
-      if (gameArea.value) {
-        gameArea.value.focus();
-      }
-    };
+    onMounted(() => {
+      fetchWords().then(() => {
+        randomizeSolution();
+        nextTick(() => {
+          focusGameArea();
+        });
+      });
+    });
 
     return {
       coins,
@@ -266,24 +252,21 @@ export default {
       letterFeedback,
       selectedLetters,
       possibleSolutions,
+      gameArea,
       gameOver,
       gameStatusMessage,
-      placeBet,
-      withdraw,
-      resetGame,
-      fetchWords,
-      randomizeSolution,
       handleKeydown,
       maintainFocus,
       submitGuess,
       getCharClass,
-      focusGameArea,
       addLetter,
+      keyClass,
       getCellClass,
       getChar,
-      keyClass,
+      focusGameArea,
       blurFocus,
-      gameArea
+      placeBet,
+      resetGame
     };
   }
 };
@@ -306,8 +289,12 @@ export default {
 .selected-letter { margin-right: 5px; font-weight: bold; }
 .keyboard-row button { margin: 2px; }
 
-.keyboard-key { min-width: 42px; } /* Increased the size for better touch interaction */
+.keyboard-key { min-width: 28px; }
 @media (min-width: 640px) {
   .keyboard-key { min-width: 54px; }
+}
+
+.keyboard {
+  margin-top: 1rem; /* Adjust this value to set the distance between the keyboard and the game area */
 }
 </style>
