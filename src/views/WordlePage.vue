@@ -289,7 +289,7 @@ export default {
 .selected-letter { margin-right: 5px; font-weight: bold; }
 .keyboard-row button { margin: 2px; }
 
-.keyboard-key { min-width: 28px; }
+.keyboard-key { min-width: 30px; }
 @media (min-width: 640px) {
   .keyboard-key { min-width: 54px; }
 }
