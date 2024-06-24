@@ -1,22 +1,22 @@
 <template>
-  <div>
-    <div class="flex md:flex-row flex-col justify-between items-center relative mt-2">
-      <router-link to="/" class="border-color border-2 p-2 border-dashed ml-2 hover:bg-red-500">Go back</router-link>
+  <div class="px-4 py-2">
+    <div class="flex flex-col md:flex-row justify-between items-center relative mt-2">
+      <router-link to="/" class="border-color border-2 p-2 border-dashed mb-2 md:mb-0 md:ml-2 hover:bg-red-500">Go back</router-link>
 
-      <div class="flex flex-col md:flex-row md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+      <div class="flex flex-col md:flex-row items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 space-y-2 md:space-y-0 md:space-x-2">
         <p id="multiply" class="border-color border-2 p-2 border-dashed">Multiply: {{ multiply.toFixed(1) }}</p>
 
-        <input type="number" id="betInput" min="0.1" step="0.1" v-model="betValue" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
+        <input type="number" id="betInput" min="0.1" step="0.1" v-model="betValue" class="focus:outline-0 border-2 border-dashed text-center bg-color text-color p-2">
 
         <button id="placeBetButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" @click="placeBet" v-if="!gameActive">Place Bet</button>
         <button id="withdrawButton" class="border-color border-2 p-2 border-dashed hover:bg-red-500" v-if="gameActive" @click="withdraw">Withdraw</button>
       </div>
 
-      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }} KK</p>
+      <p id="coinDisplay" class="border-color border-2 p-2 border-dashed mt-2 md:mt-0">Coins: {{ coins }} KK</p>
     </div>
 
     <div class="flex justify-center items-center mt-12">
-      <div id="minefield" class="flex flex-wrap" style="width: 26rem;">
+      <div id="minefield" class="grid grid-cols-6 gap-2" style="max-width: 26rem;">
         <div v-for="(mine, index) in mines" :key="index" class="h-16 w-16 border-2 border-dashed border-color hover:bg-red-800 m-0.5" :class="{'bg-gray-500': selectedSquares[index]}" @click="clickSquare(index)"></div>
       </div>
     </div>
@@ -44,19 +44,18 @@ export default {
     const scoreIncrement = ref(0.2);
     const timeRemaining = ref(30);
     const mines = ref(Array(36).fill(false));
-    const selectedSquares = ref(Array(36).fill(false)); // New property to track selected squares
+    const selectedSquares = ref(Array(36).fill(false));
     let timerInterval = null;
 
     const updateUserCoins = async (newCoins) => {
-  coins.value = parseFloat(newCoins).toFixed(2); // Ensure this is a string if you're using toFixed for display
-  store.commit('updateCoins', parseFloat(coins.value)); // Ensure you're updating the Vuex store with a number
-
-  const user = auth.currentUser;
-  if (user) {
-    const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, { coins: parseFloat(newCoins) }, { merge: true });
-  }
-};
+      coins.value = parseFloat(newCoins).toFixed(2);
+      store.commit('updateCoins', parseFloat(coins.value));
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { coins: parseFloat(newCoins) }, { merge: true });
+      }
+    };
 
     watch(gameActive, (newVal) => {
       if (newVal) {
@@ -69,21 +68,21 @@ export default {
     onMounted(initGame);
 
     function startTimer() {
-  timeRemaining.value = 30;
-  timerInterval = setInterval(() => {
-    timeRemaining.value--;
-    if (timeRemaining.value <= 0) {
-      clearInterval(timerInterval); // Clear the interval first to stop the timer
-      alert("Time's up!"); // Then show the alert
-      gameActive.value = false;
+      timeRemaining.value = 30;
+      timerInterval = setInterval(() => {
+        timeRemaining.value--;
+        if (timeRemaining.value <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up!");
+          gameActive.value = false;
+        }
+      }, 1000);
     }
-  }, 1000);
-}
 
-function stopTimer() {
-  clearInterval(timerInterval); // Clear the interval whenever the timer needs to stop
-  timeRemaining.value = 30; // Reset timeRemaining if necessary
-}
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timeRemaining.value = 30;
+    }
 
     function placeBet() {
       if (betValue.value > coins.value) {
@@ -96,41 +95,37 @@ function stopTimer() {
     }
 
     async function withdraw() {
-  const winnings = currentBet.value * multiply.value;
-  const newCoinsValue = parseFloat(coins.value) + winnings;
-  await updateUserCoins(newCoinsValue.toFixed(2)); // Ensure proper rounding and conversion to string for consistency
-  gameActive.value = false;
-  currentBet.value = 0;
-  resetGame(); // Restart the game after withdrawing
-}
+      const winnings = currentBet.value * multiply.value;
+      const newCoinsValue = parseFloat(coins.value) + winnings;
+      await updateUserCoins(newCoinsValue.toFixed(2));
+      gameActive.value = false;
+      currentBet.value = 0;
+      resetGame();
+    }
 
+    function resetGame() {
+      selectedSquares.value = Array(36).fill(false);
+      mines.value = Array(36).fill(false);
+      multiply.value = 1.0;
+      scoreIncrement.value = 0.2;
+      gameActive.value = false;
+      currentBet.value = 0;
+      initGame();
+    }
 
-// Ensure resetGame properly resets the game for a new start
-function resetGame() {
-  selectedSquares.value = Array(36).fill(false);
-  mines.value = Array(36).fill(false); // Reset mines
-  multiply.value = 1.0;
-  scoreIncrement.value = 0.2;
-  gameActive.value = false;
-  currentBet.value = 0;
-  // Optionally reset betValue if needed
-  // betValue.value = 1; // Uncomment if you want to reset the bet value as well
-  initGame(); // Reinitialize the game, placing new mines
-}
-
-function clickSquare(index) {
-  if (!gameActive.value || selectedSquares.value[index]) {
-    return;
-  }
-  selectedSquares.value[index] = true;
-  if (mines.value[index]) {
-    alert("Game Over");
-    resetGame(); // Reset the game when a mine is clicked
-  } else {
-    multiply.value += scoreIncrement.value;
-    scoreIncrement.value += 0.2;
-  }
-}
+    function clickSquare(index) {
+      if (!gameActive.value || selectedSquares.value[index]) {
+        return;
+      }
+      selectedSquares.value[index] = true;
+      if (mines.value[index]) {
+        alert("Game Over");
+        resetGame();
+      } else {
+        multiply.value += scoreIncrement.value;
+        scoreIncrement.value += 0.2;
+      }
+    }
 
     function initGame() {
       multiply.value = 1.0;

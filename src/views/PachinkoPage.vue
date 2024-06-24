@@ -1,16 +1,16 @@
 <template>
-  <div></div>
-    <div class="flex md:flex-row flex-col justify-between items-center relative mb-4 mt-2">
-      <router-link to="/" 
-      class="border-color border-2 p-2 border-dashed ml-2 hover:bg-red-500">Go back</router-link>
-      <div class="flex flex-col md:flex-row md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+  <div class="bg-color px-4 py-2">
+    <div class="flex flex-col md:flex-row justify-between items-center relative mb-4 mt-2 space-y-4 md:space-y-0 md:space-x-4">
+      <router-link to="/" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Go back</router-link>
+      <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
         <label for="ballCost" class="border-color border-2 p-2 border-dashed">Ulog po loptici:</label>
-        <input type="number" v-model.number="ballCost" id="ballCost" value="1" step="0.1" min="0.1" class="focus:outline-0 md:border-t-2 md:border-b-2 md:border-l-0 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center">
+        <input type="number" v-model.number="ballCost" id="ballCost" step="0.1" min="0.1" class="focus:outline-0 border-t-2 border-b-2 md:border-r-0 border-l-2 border-r-2 border-dashed text-color bg-color text-center p-2">
         <button @click="onLaunchClick" @mousedown="onLaunchMouseDown" @mouseup="onLaunchMouseUp" @mouseleave="onLaunchMouseUp" id="launchBall" class="border-color border-2 p-2 border-dashed hover:bg-red-500">Launch Balls</button>
       </div>
       <p id="coinDisplay" class="border-color border-2 p-2 border-dashed">Coins: {{ coins }} KK</p>
     </div>
-    <div id="gameContent" class="flex justify-center items-center"></div>
+    <div id="gameContent" class="flex justify-center items-center game-content"></div>
+  </div>
 </template>
 
 <script>
@@ -41,12 +41,16 @@ export default {
         gravity: { x: 0, y: 1 },
       });
 
+      const isTabletOrDesktop = window.innerWidth > 768;
+      const gameWidth = isTabletOrDesktop ? 800 : 400;
+      const gameHeight = isTabletOrDesktop ? 600 : 300;
+
       render = Matter.Render.create({
         element: gameContent,
         engine: engine,
         options: {
-          width: 800,
-          height: 600,
+          width: gameWidth,
+          height: gameHeight,
           wireframes: false,
           background: '#18181d',
         },
@@ -55,50 +59,51 @@ export default {
       runner = Matter.Runner.create();
       Matter.Runner.run(runner, engine);
 
-      const wallOptions = { isStatic: true,
-                            restitution: 0.8,
-                            render: { fillStyle: '#fff' }
-                          };
+      const wallOptions = {
+        isStatic: true,
+        restitution: 0.8,
+        render: { fillStyle: '#fff' },
+      };
 
-      const wallTop = Matter.Bodies.rectangle(render.canvas.width / 2, 0, render.canvas.width, 5, wallOptions);
-      const wallBottom = Matter.Bodies.rectangle(render.canvas.width / 2, render.canvas.height, render.canvas.width, 5, wallOptions);
-      const wallLeft = Matter.Bodies.rectangle(0, render.canvas.height / 2, 5, render.canvas.height, wallOptions);
-      const wallRight = Matter.Bodies.rectangle(render.canvas.width, render.canvas.height / 2, 5, render.canvas.height, wallOptions);
+      const wallTop = Matter.Bodies.rectangle(gameWidth / 2, 0, gameWidth, 5, wallOptions);
+      const wallBottom = Matter.Bodies.rectangle(gameWidth / 2, gameHeight, gameWidth, 5, wallOptions);
+      const wallLeft = Matter.Bodies.rectangle(0, gameHeight / 2, 5, gameHeight, wallOptions);
+      const wallRight = Matter.Bodies.rectangle(gameWidth, gameHeight / 2, 5, gameHeight, wallOptions);
 
       Matter.World.add(engine.world, [wallTop, wallBottom, wallLeft, wallRight]);
 
       const vertices = [
-        { x: (render.canvas.width / 2) - 25, y: 95 },
-        { x: render.canvas.width / 2, y: 85 },
-        { x: (render.canvas.width / 2) + 25, y: 95 }
+        { x: (gameWidth / 2) - 12.5, y: 47.5 },
+        { x: gameWidth / 2, y: 42.5 },
+        { x: (gameWidth / 2) + 12.5, y: 47.5 }
       ];
 
-      launcher.value = Matter.Bodies.fromVertices(render.canvas.width / 2, 50, vertices, {
+      launcher.value = Matter.Bodies.fromVertices(gameWidth / 2, 25, vertices, {
         isStatic: true,
         render: { fillStyle: "transparent" },
       });
 
       Matter.World.add(engine.world, launcher.value);
 
-      const pinRadius = 10;
-      const spacing = 42;
+      const pinRadius = isTabletOrDesktop ? 10 : 5;
+      const spacing = isTabletOrDesktop ? 42 : 21;
       const rows = 11;
       const cols = 23;
       const startY = launcher.value.position.y + launcher.value.bounds.max.y + spacing * 0.2;
 
       for (let i = 0; i < rows; i++) {
-        const startX = (render.canvas.width - cols * spacing) / 2 + (i % 2) * spacing / 2;
+        const startX = (gameWidth - cols * spacing) / 2 + (i % 2) * spacing / 2;
 
         for (let j = 0; j < cols; j++) {
           const x = startX + j * spacing;
           const y = startY + i * spacing;
           const pin = Matter.Bodies.circle(x, y, pinRadius, {
             isStatic: true,
-            restitution: 0.4, //Za bounce
+            restitution: 0.4,
             render: {
               fillStyle: 'transparent',
               strokeStyle: '#f7fff7',
-              lineWidth: 4,
+              lineWidth: 2,
             },
           });
           pins.push(pin);
@@ -111,15 +116,15 @@ export default {
 
       Matter.Events.on(engine, "afterUpdate", () => {
         for (let pin of pins) {
-          Matter.Body.applyForce(pin, { x: 0, y: 0 }, { x: 0.05, y: 0 });
+          Matter.Body.applyForce(pin, { x: 0, y: 0 }, { x: 0.025, y: 0 });
         }
       });
 
       const numSections = 9;
-      const sectionWidth = render.canvas.width / numSections;
-      const sectionHeight = 20;
-      const borderThickness = 4;
-      const sectionStartY = render.canvas.height - sectionHeight / 2;
+      const sectionWidth = gameWidth / numSections;
+      const sectionHeight = isTabletOrDesktop ? 20 : 10;
+      const borderThickness = 2;
+      const sectionStartY = gameHeight - sectionHeight / 2;
 
       for (let i = 0; i < numSections; i++) {
         let coinsValue;
@@ -186,18 +191,14 @@ export default {
       Matter.Events.on(engine, "collisionStart", (event) => {
         const pairs = event.pairs;
         for (const pair of pairs) {
-          // Check if the collision is between a ball and a wall
           if ((pair.bodyA === wallLeft && balls.includes(pair.bodyB)) || (pair.bodyB === wallLeft && balls.includes(pair.bodyA))) {
             const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-            // Set the velocity of the ball to move it in the right direction
             Matter.Body.setVelocity(ball, { x: 2, y: ball.velocity.y });
           } else if ((pair.bodyA === wallRight && balls.includes(pair.bodyB)) || (pair.bodyB === wallRight && balls.includes(pair.bodyA))) {
             const ball = balls.includes(pair.bodyB) ? pair.bodyB : pair.bodyA;
-            // Set the velocity of the ball to move it in the left direction
             Matter.Body.setVelocity(ball, { x: -2, y: ball.velocity.y });
           }
 
-          // Existing collision detection logic
           for (let i = 0; i < balls.length; i++) {
             const ball = balls[i];
             if ((pair.bodyA === ball && sections.includes(pair.bodyB)) || (pair.bodyB === ball && sections.includes(pair.bodyA))) {
@@ -217,12 +218,12 @@ export default {
       Matter.Render.run(render);
 
       Matter.Events.on(render, 'afterRender', function() {
-        render.context.font = '1rem Cutive Mono';
+        render.context.font = isTabletOrDesktop ? '1rem Cutive Mono' : '0.5rem Cutive Mono';
         render.context.fillStyle = 'white';
         render.context.textAlign = 'center';
         render.context.textBaseline = 'middle';
         sections.forEach(section => {
-          if(section.coins !== undefined) {
+          if (section.coins !== undefined) {
             render.context.fillText(
               `${section.coins}`,
               section.position.x,
@@ -242,12 +243,14 @@ export default {
           coins.value -= ballCost.value;
           updateUserCoins();
 
+          const isTabletOrDesktop = window.innerWidth > 768;
+          const ballRadius = isTabletOrDesktop ? 10 : 5;
           const variation = 100;
           const randomX = launcher.value.position.x - variation / 1.2 + Math.random() * variation;
           const newBall = Matter.Bodies.circle(
             randomX,
             launcher.value.position.y,
-            10,
+            ballRadius,
             {
               restitution: 0.6,
               friction: 0,
@@ -311,5 +314,19 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+@media (max-width: 767px) {
+  #gameContent {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    max-height: 300px;
+  }
+
+  .game-content canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
 }
 </style>

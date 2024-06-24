@@ -1,22 +1,20 @@
 <template>
   <div class="w-full h-screen flex flex-col justify-between overflow-auto cutive-mono-regular">
-    <h1 class="text-5xl relative text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+    <h1 class="text-5xl text-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 my-4 md:my-0">
       "STEPS"
     </h1>
-    <div class="flex justify-between items-center relative">
+    <div class="flex justify-between items-center relative mb-4 md:mb-0">
       <p id="coinDisplay" class="border-color border-2 p-2 border-dashed ml-2">Coins: {{ coins }} KK</p>
-      <div class="flex">
-        <button id="Authenticate" class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2" @click="authenticate">
+      <div class="flex space-x-2">
+        <button id="Authenticate" class="border-color border-2 p-2 border-dashed hover:bg-red-500" @click="authenticate">
           Authenticate
         </button>
-        <button id="Get_KK" class="border-color border-2 p-2 border-dashed hover:bg-red-500 mr-2" @click="handleRequest">
+        <button id="Get_KK" class="border-color border-2 p-2 border-dashed hover:bg-red-500" @click="handleRequest">
           Get KorakKoins
         </button>
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3">
-      <!-- Pachinko -->
-
       <router-link to="/pachinko" class="group relative block h-64 sm:h-80">
         <span class="absolute inset-0 border-2 border-dashed border-color"></span>
         <div class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -31,9 +29,6 @@
           </div>
         </div>
       </router-link>
-
-      <!-- Mines -->
-
       <router-link to="/mines" class="group relative block h-64 sm:h-80">
         <span class="absolute inset-0 border-2 border-dashed border-color"></span>
         <div class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -48,9 +43,6 @@
           </div>
         </div>
       </router-link>
-
-      <!-- Lucky Numbers -->
-
       <router-link to="/lucky" class="group relative block h-64 sm:h-80">
         <span class="absolute inset-0 border-2 border-dashed border-color"></span>
         <div class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -65,9 +57,6 @@
           </div>
         </div>
       </router-link>
-
-      <!-- Wordle -->
-
       <router-link to="/wordle" class="group relative block h-64 sm:h-80">
         <span class="absolute inset-0 border-2 border-dashed border-color"></span>
         <div class="relative flex h-full transform items-end border-2 border-color bg-color transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -82,7 +71,6 @@
           </div>
         </div>
       </router-link>
-
     </div>
   </div>
 </template>
