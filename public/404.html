@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0;url=./index.html">
-  <script type="text/javascript">
-    window.location.href = './index.html'
-  </script>
-</head>
-<body>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+      var l = window.location;
+      var base = '/Mihael-Tin-banda.github.io/'; // replace with your repo name
+      if (l.pathname === base) {
+        window.location.replace(base + '#/');
+      } else {
+        var path = l.pathname.replace(base, '');
+        window.location.replace(base + '#/' + path);
+      }
+    </script>
+    
+  </head>
+  <body>
+  </body>
 </html>
