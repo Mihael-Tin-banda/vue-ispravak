@@ -10,10 +10,10 @@
 
     <p id="coinDisplay" class="border-color border-2 p-2 border-dashed mt-2 md:mt-0">Coins: {{ coins }} KK</p>
   </div>
-  <div class="wordle-game flex flex-col items-center justify-center mx-auto w-full md:w-3/4 lg:w-1/2" @keydown="handleKeydown" tabindex="0" ref="gameArea">
+  <div class="wordle-game flex flex-col items-center justify-center mx-auto w-full md:w-3/4 lg:w-1/2 mt-4" @keydown="handleKeydown" tabindex="0" ref="gameArea">
     <div class="grid gap-1 mb-4">
       <div v-for="n in maxGuesses" :key="n" class="flex justify-center">
-        <div v-for="m in solution.length" :key="`guess-${n}-char-${m}`" class="w-12 h-12 sm:w-14 sm:h-14 border-2 flex justify-center items-center m-0.5 text-lg sm:text-xl" :class="getCellClass(n-1, m-1)">
+        <div v-for="m in solution.length" :key="`guess-${n}-char-${m}`" class="w-12 h-12 sm:w-14 sm:h-14 border-2 border-dashed flex justify-center items-center m-0.5 text-lg sm:text-xl" :class="getCellClass(n-1, m-1)">
           <span>{{ getChar(n-1, m-1) }}</span>
         </div>
       </div>

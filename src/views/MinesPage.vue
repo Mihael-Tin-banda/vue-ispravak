@@ -17,7 +17,7 @@
 
     <div class="flex justify-center items-center mt-12">
       <div id="minefield" class="grid grid-cols-6 gap-2" style="max-width: 26rem;">
-        <div v-for="(mine, index) in mines" :key="index" class="h-16 w-16 border-2 border-dashed border-color hover:bg-red-800 m-0.5" :class="{'bg-gray-500': selectedSquares[index]}" @click="clickSquare(index)"></div>
+        <div v-for="(mine, index) in mines" :key="index" class="h-16 w-16 border-2 border-dashed border-color hover:bg-red-800 m-0.5" :class="{'bg-red-500': selectedSquares[index]}" @click="clickSquare(index)"></div>
       </div>
     </div>
 
