@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <script type="text/javascript">
-      var path = window.location.pathname;
-      var newPath = '/Mihael-Tin-banda.github.io/' + path;
-      window.location.replace(newPath);
+      var l = window.location;
+      var base = '/Mihael-Tin-banda.github.io/'; // replace with your repo name
+      if (l.pathname === base) {
+        window.location.replace(base + '#/');
+      } else {
+        var path = l.pathname.replace(base, '');
+        window.location.replace(base + '#/' + path);
+      }
     </script>
+    
   </head>
   <body>
   </body>
