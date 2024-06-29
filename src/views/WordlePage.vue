@@ -121,9 +121,7 @@ export default {
       if (!gameActive.value) return;
       const key = event.key.toLowerCase();
       if (key === 'enter') {
-        if (currentGuess.value && (!guesses.value.length || !guesses.value[guesses.value.length - 1].isSubmitted)) {
           submitGuess();
-        }
       } else if (key === 'backspace' && currentGuess.value.length > 0) {
         currentGuess.value = currentGuess.value.slice(0, -1);
         selectedLetters.value.pop();
@@ -187,11 +185,9 @@ export default {
       if (!gameActive.value) return;
       if (key === '✅') {
         submitGuess();
-      } else if (key === '❌') {
-        if (currentGuess.value.length > 0) {
-          currentGuess.value = currentGuess.value.slice(0, -1);
-          selectedLetters.value.pop();
-        }
+      } else if (key === '❌' && currentGuess.value.length > 0) {
+        currentGuess.value = currentGuess.value.slice(0, -1);
+         selectedLetters.value.pop();
       } else if (currentGuess.value.length < solution.value.length) {
         currentGuess.value += key;
         selectedLetters.value.push(key);
